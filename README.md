@@ -14,6 +14,7 @@ $response = $cloudflare->get("/");
 echo $response->getBody();
 
 //output status code
+echo $response->getStatusCode();
 ```
 
 
