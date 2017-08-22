@@ -35,13 +35,21 @@ class CloudFlare
    * @var \GuzzleHttp\Cookie\FileCookieJar
    */
   private $cookieJar;
-
+  
   /**
    * $cookieExists for use when calculating if we should get the cookie again
    * @var [type]
    */
   private $cookieExists = false;
-
+  
+  /**
+   *  $cookieMaxOldage Cloudflare refreshes cookie after x hours
+   *  cookiefile will be deleted and new cookie will be requested
+   *
+   * @var integer
+   */
+	private $cookieMaxOldageHours = 24;
+  
   /**
    * WAIT_RESPONSE_CODE this is the response code which CloudFlare throws when UAM is active
    * @var int
@@ -93,8 +101,13 @@ class CloudFlare
       ];
       if(file_exists($file))
       {
-        $this->cookieExists = true;
-        $this->cookieJar->load($file);
+        if ( time() - filemtime( $file ) > $this->cookieMaxOldageHours * 3600 ) 
+        {
+          unlink( $file );
+        } else {
+            $this->cookieExists = true;
+            $this->cookieJar->load($file);          
+        }
       }
     }
     $this->client = new \GuzzleHttp\Client($config);
