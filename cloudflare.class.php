@@ -173,7 +173,7 @@ class CloudFlare
   {
     $this->request = $this->client->request(
       "GET",
-      $this->target,
+      $uri,
       $this->getHeaderData(),
       [
         'allow_redirects' => true
