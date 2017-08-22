@@ -44,6 +44,7 @@ class CloudFlare
 
   /**
 	*  $waitTimeForCloudFlareRedirect Cloudflare redirects after few seconds
+	*  this is the sleeptime by getting the cookie
 	*
 	* @var integer
 	*/
