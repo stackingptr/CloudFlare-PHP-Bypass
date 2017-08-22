@@ -8,5 +8,13 @@ require_once "cloudflare.class.php";
 $cloudflare = new \Stack\Bypass\CloudFlare("http://libc.tech", [true, "x.txt"]);
 
 // Do a request to /, display result.
-echo $cloudflare->get("/");
+$response = $cloudflare->get("/");
+
+//output html
+echo $response->getBody();
+
+//output status code
+echo $response->getStatusCode();
 ```
+
+

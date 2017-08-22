@@ -25,10 +25,10 @@ class CloudFlare
   private $client;
 
   /**
-   * $client stores an instance of \GuzzleHttp\Request
-   * @var \GuzzleHttp\Request
+   * $client stores an instance of \GuzzleHttp\Psr7\Response
+   * @var \GuzzleHttp\Psr7\Response
    */
-  private $request;
+  private $response;
 
   /**
    * $cookieJar stores an instance of \GuzzleHttp\Cookie\FileCookieJar
@@ -42,6 +42,14 @@ class CloudFlare
    */
   private $cookieExists = false;
 
+  /**
+	*  $waitTimeForCloudFlareRedirect Cloudflare redirects after few seconds
+	*  this is the sleeptime by getting the cookie
+	*
+	* @var integer
+	*/
+  private $waitTimeForCloudFlareRedirect = 7;
+  
   /**
    * WAIT_RESPONSE_CODE this is the response code which CloudFlare throws when UAM is active
    * @var int
@@ -116,12 +124,12 @@ class CloudFlare
    */
   private function getCookie()
   {
-    $refreshHeader = $this->request->getHeader("Refresh")[0];
+    $refreshHeader = $this->response->getHeader("Refresh")[0];
     $followLocation = $this->target.$this->parseRefresh($refreshHeader);
     $data = $this->getHeaderData();
     $data['Referer'] = $this->target;
 
-    $this->request = $this->client->request(
+    $this->response = $this->client->request(
       "GET",
       $followLocation,
       $data
@@ -133,18 +141,18 @@ class CloudFlare
    */
   private function initialRequest()
   {
-    $this->request = $this->client->request(
+    $this->response = $this->client->request(
       "GET",
       $this->target,
       $this->getHeaderData()
     );
     if(!$this->cookieExists)
     {
-      if(!$this->verifyPage($this->request))
+      if(!$this->verifyPage($this->response))
       {
         throw new \Exception("This website is not protected by CloudFlare or the UAM is not enabled", 1);
       }
-      sleep(8);
+      sleep($this->waitTimeForCloudFlareRedirect);
       $this->getCookie();
     }
   }
@@ -167,11 +175,11 @@ class CloudFlare
   /**
    * get does a GET request to the specified URI
    * @param  string $uri location
-   * @return string      body of the request
+   * @return \GuzzleHttp\Psr7\Response	response object
    */
   public function get($uri)
   {
-    $this->request = $this->client->request(
+    $this->response = $this->client->request(
       "GET",
       $this->target,
       $this->getHeaderData(),
@@ -179,7 +187,7 @@ class CloudFlare
         'allow_redirects' => true
       ]
     );
-    return $this->request->getBody();
+    return $this->response;
   }
 
   /*
