@@ -167,7 +167,7 @@ class CloudFlare
   /**
    * get does a GET request to the specified URI
    * @param  string $uri location
-   * @return string      body of the request
+   * @return \GuzzleHttp\Psr7\Response	response object
    */
   public function get($uri)
   {
@@ -179,7 +179,7 @@ class CloudFlare
         'allow_redirects' => true
       ]
     );
-    return $this->response->getBody();
+    return $this->response;
   }
 
   /*
