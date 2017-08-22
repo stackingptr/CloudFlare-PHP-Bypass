@@ -43,6 +43,13 @@ class CloudFlare
   private $cookieExists = false;
 
   /**
+	*  $waitTimeForCloudFlareRedirect Cloudflare redirects after few seconds
+	*
+	* @var integer
+	*/
+  private $waitTimeForCloudFlareRedirect = 7;
+  
+  /**
    * WAIT_RESPONSE_CODE this is the response code which CloudFlare throws when UAM is active
    * @var int
    */
@@ -144,7 +151,7 @@ class CloudFlare
       {
         throw new \Exception("This website is not protected by CloudFlare or the UAM is not enabled", 1);
       }
-      sleep(8);
+      sleep($this->waitTimeForCloudFlareRedirect);
       $this->getCookie();
     }
   }
